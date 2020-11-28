@@ -1,7 +1,11 @@
 package com.zblumenf.spring.data.gremlin.conversion.source;
 
+import com.zblumenf.spring.data.gremlin.conversion.MappingGremlinConverter;
+import com.zblumenf.spring.data.gremlin.conversion.result.GremlinResultsReader;
+import com.zblumenf.spring.data.gremlin.conversion.source.reader.GremlinSourceReader;
+import com.zblumenf.spring.data.gremlin.conversion.source.writer.GremlinSourceWriter;
+import com.zblumenf.spring.data.gremlin.conversion.traversal.GremlinTraversalBuilder;
 import lombok.NonNull;
-import org.apache.tinkerpop.gremlin.driver.Result;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -70,40 +74,40 @@ public interface GremlinSource<T> {
     /**
      * do the real write from domain to GremlinSource
      */
-    //void doGremlinSourceWrite(Object domain, MappingGremlinConverter converter);
+    void doGremlinSourceWrite(Object domain, MappingGremlinConverter converter);
 
     /**
      * do the real reading from Result to GremlinSource
      */
-    //void doGremlinResultRead(List<Result> results);
+    void doGremlinResultRead(List<Map<Object, Object>> results);
 
     /**
      * do the real reading from GremlinSource to domain
      */
-    //T doGremlinSourceRead(Class<T> domainClass, MappingGremlinConverter converter);
+    T doGremlinSourceRead(Class<T> domainClass, MappingGremlinConverter converter);
 
     /**
-     * return the GremlinScriptLiteral
+     * return the GremlinTraversalBuilder
      */
-    //GremlinScriptLiteral getGremlinScriptLiteral();
+    GremlinTraversalBuilder getGremlinTraversalBuilder();
 
     /**
      * Set the script Strategy of GremlinSource
      */
-   //void setGremlinScriptStrategy(GremlinScriptLiteral script);
+   void setGremlinTraversalStrategy(GremlinTraversalBuilder traversalBuilder);
 
     /**
      * Set the SourceWriter of GremlinSource
      */
-    //void setGremlinSourceWriter(GremlinSourceWriter writer);
+    void setGremlinSourceWriter(GremlinSourceWriter writer);
 
     /**
      * Set the ResultReader for reading data from Gremlin Result to GremlinSource
      */
-    //void setGremlinResultReader(GremlinResultsReader reader);
+    void setGremlinResultReader(GremlinResultsReader reader);
 
     /**
      * Set the SourceReader for reading data from GremlinSource to domain
      */
-    //void setGremlinSourceReader(GremlinSourceReader reader);
+    void setGremlinSourceReader(GremlinSourceReader reader);
 }
