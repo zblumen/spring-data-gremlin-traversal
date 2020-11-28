@@ -11,6 +11,10 @@ public class Constants {
     public static final String DEFAULT_TRAVERSAL_SOURCE_NAME = "g";
     public static final int DEFAULT_MAX_CONTENT_LENGTH = 65536;
 
+    public static final String GREMLIN_MODULE_NAME = "Gremlin";
+    public static final String GREMLIN_MODULE_PREFIX = "gremlin";
+    public static final String GREMLIN_MAPPING_CONTEXT = "gremlinMappingContext";
+
     public static final String GREMLIN_PROPERTY_CLASSNAME = "_classname";
 
     public static final T PROPERTY_ID = T.id;

@@ -31,6 +31,16 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
         this.mappingConverter = converter;
     }
 
+    @NonNull
+    private List<Map<Object, Object>> executeQueryToValueMapList(@NonNull GraphTraversal traversal) {
+        return new ArrayList<Map<Object, Object>>(traversal.valueMap().with(WithOptions.tokens).toList());
+    }
+
+    @NonNull
+    private void executeQueryToIterate(@NonNull GraphTraversal traversal) {
+        traversal.iterate();
+    }
+
     private <T> T recoverDomain(@NonNull GremlinSource<T> source, @NonNull List<Map<Object, Object>> results) {
         final T domain;
         final Class<T> domainClass = source.getDomainClass();
@@ -45,15 +55,16 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
         return domain;
     }
 
+    public ApplicationContext getApplicationContext() {
+        return this.context;
+    }
 
     @Override
     public MappingGremlinConverter getMappingConverter() {
         return this.mappingConverter;
     }
 
-    public ApplicationContext getApplicationContext() {
-        return this.context;
-    }
+
 
     @Override
     public void setApplicationContext(@NonNull ApplicationContext context) throws BeansException {
@@ -68,20 +79,17 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
         return this.gremlinClient;
     }
 
-    private <T> List<Result> insertInternal(@NonNull T object, @NonNull GremlinSource<T> source) {
-        this.mappingConverter.write(object, source);
+    private <T> T findByIdInternal(@NonNull GremlinSource<T> source) {
+        final GraphTraversal traversal = source
+                .getGremlinTraversalBuilder()
+                .buildFindByIdTraversal(source, this.factory.generateGraphTraversalSource());
+        final List<Map<Object, Object>> results = this.executeQueryToValueMapList(traversal);
 
-        return executeQuery(source.getGremlinScriptLiteral().generateInsertScript(source));
-    }
+        if (results.isEmpty()) {
+            return null;
+        }
 
-    @NonNull
-    private List<Map<Object, Object>> executeQueryToValueMapList(@NonNull GraphTraversal traversal) {
-        return new ArrayList<Map<Object, Object>>(traversal.valueMap().with(WithOptions.tokens).toList());
-    }
-
-    @NonNull
-    private Object executeQueryToId(@NonNull GraphTraversal traversal) {
-        return traversal.id().next();
+        return recoverDomain(source, results);
     }
 
     @Override
@@ -102,7 +110,16 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
                 .getGremlinTraversalBuilder()
                 .buildDeleteByIdTraversal(source, this.factory.generateGraphTraversalSource());
 
-        executeQueryToId(traversal);
+        executeQueryToIterate(traversal);
+    }
+
+    private <T> List<Map<Object, Object>> insertInternal(@NonNull T object, @NonNull GremlinSource<T> source) {
+        this.mappingConverter.write(object, source);
+
+        final GraphTraversal traversal = source
+                .getGremlinTraversalBuilder()
+                .buildInsertTraversal(source, this.factory.generateGraphTraversalSource());
+        return this.executeQueryToValueMapList(traversal);
     }
 
     @Override
@@ -120,7 +137,7 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
         // need to be performed in two consecutive steps.
         // TODO(SOON) Add this verification in the GremlinSourceGraphWriter
 
-        final List<Result> results = insertInternal(object, source);
+        final List<Map<Object, Object>> results = insertInternal(object, source);
 
         if (!results.isEmpty()) {
             return recoverDomain(source, results);
@@ -133,16 +150,19 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
         return null;
     }
 
-    private <T> T findByIdInternal(@NonNull GremlinSource<T> source) {
-        final GraphTraversal traversal = source
-                .getGremlinTraversalBuilder()
-                .buildFindByIdTraversal(source, this.factory.generateGraphTraversalSource());
-        final List<Map<Object, Object>> results = this.executeQueryToValueMapList(traversal);
+    @Override
+    public <T> T findById(@NonNull Object id, @NonNull GremlinSource<T> source) {
+       /* if (source instanceof GremlinSourceGraph) {
+            throw new UnsupportedOperationException("Gremlin graph cannot be findById.");
+        }*/
 
-        if (results.isEmpty()) {
-            return null;
-        }
+        source.setId(id);
 
-        return recoverDomain(source, results);
+        return findByIdInternal(source);
+    }
+
+    @Override
+    public <T> boolean existsById(@NonNull Object id, @NonNull GremlinSource<T> source) {
+        return findById(id, source) != null;
     }
 }

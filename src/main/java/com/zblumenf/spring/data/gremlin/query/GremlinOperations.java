@@ -11,13 +11,13 @@ import java.util.List;
  */
 public interface GremlinOperations {
 
-    void deleteAll();
+    //void deleteAll();
 
-    void deleteAll(GremlinEntityType type);
+    //void deleteAll(GremlinEntityType type);
 
-    <T> void deleteAll(GremlinSource<T> source);
+    //<T> void deleteAll(GremlinSource<T> source);
 
-    <T> boolean isEmptyGraph(GremlinSource<T> source);
+    //<T> boolean isEmptyGraph(GremlinSource<T> source);
 
     <T> boolean existsById(Object id, GremlinSource<T> source);
 
@@ -29,19 +29,19 @@ public interface GremlinOperations {
 
     <T> T findVertexById(Object id, GremlinSource<T> source);
 
-    <T> T findEdgeById(Object id, GremlinSource<T> source);
+    //<T> T findEdgeById(Object id, GremlinSource<T> source);
 
-    <T> T update(T object, GremlinSource<T> source);
+    //<T> T update(T object, GremlinSource<T> source);
 
-    <T> T save(T object, GremlinSource<T> source);
+    //<T> T save(T object, GremlinSource<T> source);
 
-    <T> List<T> findAll(GremlinSource<T> source);
+    //<T> List<T> findAll(GremlinSource<T> source);
 
-    long vertexCount();
+    //long vertexCount();
 
-    long edgeCount();
+    //long edgeCount();
 
-    <T> List<T> find(GremlinQuery query, GremlinSource<T> source);
+   // <T> List<T> find(GremlinQuery query, GremlinSource<T> source);
 
     MappingGremlinConverter getMappingConverter();
 }
