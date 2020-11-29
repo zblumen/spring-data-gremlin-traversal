@@ -31,6 +31,10 @@ public abstract class AbstractGremlinSource<T> implements GremlinSource<T> {
 
     @Getter
     @Setter
+    private String labelProperty;
+
+    @Getter
+    @Setter
     private Field idField;
 
     @Getter

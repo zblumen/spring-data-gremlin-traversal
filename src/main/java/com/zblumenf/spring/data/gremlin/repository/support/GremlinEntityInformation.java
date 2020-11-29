@@ -28,6 +28,7 @@ public class GremlinEntityInformation<T, ID> extends AbstractEntityInformation<T
 
     private GremlinSource<T> createGremlinSource(@NonNull Class<T> domainClass, @NonNull Field idField) {
         final String label;
+        final String labelProperty;
         final String domainClassName = domainClass.getSimpleName();
         final Vertex vertex = domainClass.getAnnotation(Vertex.class);
         //final Edge edge = domainClass.getAnnotation(Edge.class);
@@ -49,6 +50,7 @@ public class GremlinEntityInformation<T, ID> extends AbstractEntityInformation<T
         if (vertex != null) {
             source = new GremlinSourceVertex<>(domainClass);
             label = vertex.label().isEmpty() ? domainClassName : vertex.label();
+            labelProperty = vertex.labelProperty();
         } else {
             throw new GremlinUnexpectedEntityTypeException("Unexpected gremlin entity type");
         }
@@ -56,6 +58,7 @@ public class GremlinEntityInformation<T, ID> extends AbstractEntityInformation<T
 
         source.setLabel(label);
         source.setIdField(idField);
+        source.setLabelProperty(labelProperty);
 
         return source;
     }

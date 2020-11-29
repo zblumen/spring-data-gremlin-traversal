@@ -1,6 +1,7 @@
 package com.zblumenf.spring.data.gremlin.repository.support;
 
 import com.zblumenf.spring.data.gremlin.query.GremlinOperations;
+import com.zblumenf.spring.data.gremlin.query.query.GremlinQueryMethod;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.EntityInformation;

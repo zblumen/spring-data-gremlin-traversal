@@ -5,10 +5,11 @@
  */
 package com.zblumenf.spring.data.gremlin.annotation;
 
-import com.zblumenf.spring.data.gremlin.common.Constants;
 import org.springframework.data.annotation.Persistent;
 
 import java.lang.annotation.*;
+
+import static com.zblumenf.spring.data.gremlin.common.Constants.DEFAULT_LABEL_PROPERTY_KEY;
 
 /**
  * Specifies the class as vertex in graph, with one optional label(String).
@@ -23,4 +24,5 @@ public @interface Vertex {
      * @return class name if not specify.
      */
     String label();
+    String labelProperty() default DEFAULT_LABEL_PROPERTY_KEY;
 }

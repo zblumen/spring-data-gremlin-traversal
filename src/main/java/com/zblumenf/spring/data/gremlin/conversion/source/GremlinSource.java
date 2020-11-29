@@ -57,6 +57,21 @@ public interface GremlinSource<T> {
     void setLabel(String label);
 
     /**
+     * Get the label property name
+     * some graph Providers have poor to failed performance on hasLabel() for multi-million/billion node graphs
+     * For this reason we need the ability to use another property asd a label and this could be a string or T.label
+     *
+     * @return will never be null
+     */
+    @NonNull
+    String getLabelProperty();
+
+    /**
+     * Set the label  property name
+     */
+    void setLabelProperty(String labelProperty);
+
+    /**
      * Get the Class type of domain
      *
      * @return will never be null
