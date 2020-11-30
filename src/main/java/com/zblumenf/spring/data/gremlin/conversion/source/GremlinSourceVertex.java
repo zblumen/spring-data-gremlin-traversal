@@ -3,7 +3,6 @@ package com.zblumenf.spring.data.gremlin.conversion.source;
 import com.zblumenf.spring.data.gremlin.conversion.result.GremlinResultVertexReader;
 import com.zblumenf.spring.data.gremlin.conversion.source.reader.GremlinSourceVertexReader;
 import com.zblumenf.spring.data.gremlin.conversion.source.writer.GremlinSourceVertexWriter;
-import com.zblumenf.spring.data.gremlin.conversion.traversal.GremlinTraversalBuilder;
 import com.zblumenf.spring.data.gremlin.conversion.traversal.GremlinTraversalBuilderVertex;
 
 public class GremlinSourceVertex<T> extends AbstractGremlinSource<T> {

@@ -3,6 +3,7 @@ package com.zblumenf.spring.data.gremlin.query;
 import com.zblumenf.spring.data.gremlin.common.GremlinEntityType;
 import com.zblumenf.spring.data.gremlin.conversion.MappingGremlinConverter;
 import com.zblumenf.spring.data.gremlin.conversion.source.GremlinSource;
+import com.zblumenf.spring.data.gremlin.query.query.GremlinQuery;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public interface GremlinOperations {
 
     //long edgeCount();
 
-   // <T> List<T> find(GremlinQuery query, GremlinSource<T> source);
+   <T> List<T> find(GremlinQuery query, GremlinSource<T> source);
 
     MappingGremlinConverter getMappingConverter();
 }

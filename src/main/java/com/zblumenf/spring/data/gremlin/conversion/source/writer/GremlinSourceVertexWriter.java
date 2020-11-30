@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
 import static com.zblumenf.spring.data.gremlin.common.Constants.*;
 
 @NoArgsConstructor
-public class GremlinSourceVertexWriter implements GremlinSourceWriter {
+public class GremlinSourceVertexWriter extends AbstractPropertyWriter implements GremlinSourceWriter {
 
     @Override
     public void write(@NonNull Object domain, @NonNull MappingGremlinConverter converter,
@@ -46,6 +46,8 @@ public class GremlinSourceVertexWriter implements GremlinSourceWriter {
             }
 
             source.setProperty(field.getName(), accessor.getProperty(property));
+
+            setPropertyFromField(source, field, accessor.getProperty(property));
         }
     }
 }

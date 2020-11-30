@@ -19,8 +19,8 @@ public class GremlinTraversalBuilderVertex extends AbstractGremlinTraversalBuild
         }
 
         GraphTraversal traversal =  g.addV(source.getLabel());
-        source.getId().ifPresent(id -> generatePropertyWithRequiredId(traversal, id)); // property(id, xxx)
-        generateProperties(traversal, source.getProperties());
+        source.getId().ifPresent(id -> addPropertyWithRequiredId(traversal, id)); // property(id, xxx)
+        addProperties(traversal, source.getProperties());
 
         return traversal;
     }

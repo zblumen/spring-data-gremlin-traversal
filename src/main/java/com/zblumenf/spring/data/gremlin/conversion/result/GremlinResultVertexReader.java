@@ -5,7 +5,6 @@ import com.zblumenf.spring.data.gremlin.common.GremlinUtils;
 import com.zblumenf.spring.data.gremlin.conversion.source.GremlinSource;
 import com.zblumenf.spring.data.gremlin.conversion.source.GremlinSourceVertex;
 import com.zblumenf.spring.data.gremlin.exception.GremlinUnexpectedSourceTypeException;
-import org.apache.tinkerpop.gremlin.driver.Result;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 

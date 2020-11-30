@@ -33,6 +33,6 @@ public class GremlinConfig {
                 .port(Constants.DEFAULT_ENDPOINT_PORT)
                 .sslEnabled(true)
                 .serializer(Serializers.GRAPHSON.toString())
-                .telemetryAllowed(true);
+                .telemetryAllowed(false);
     }
 }

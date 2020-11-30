@@ -6,6 +6,8 @@ import com.zblumenf.spring.data.gremlin.conversion.source.reader.GremlinSourceRe
 import com.zblumenf.spring.data.gremlin.conversion.source.writer.GremlinSourceWriter;
 import com.zblumenf.spring.data.gremlin.conversion.traversal.GremlinTraversalBuilder;
 import lombok.NonNull;
+import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.apache.tinkerpop.gremlin.process.traversal.TextP;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -18,6 +20,16 @@ public interface GremlinSource<T> {
      * Set the property map of domain
      */
     void setProperty(String key, Object value);
+
+    /**
+     * Set the property Predicate map of domain
+     */
+    void setPropertyP(String key, Class<? extends P> pClass);
+
+    /**
+     * Set the property Text Predicate map of domain
+     */
+    void setPropertyTextP(String key, Class<? extends TextP> textPClass);
 
     /**
      * Get the id of domain
@@ -85,6 +97,20 @@ public interface GremlinSource<T> {
      * @return will never be null
      */
     Map<String, Object> getProperties();
+
+    /**
+     * Get The Custom Predicates for the properties
+     *
+     * @return will never be null
+     */
+    Map<String, P> getPropertyPs();
+
+    /**
+     * Get The Custom Text Predicates for the properties
+     *
+     * @return will never be null
+     */
+    Map<String, TextP> getPropertyTextPs();
 
     /**
      * do the real write from domain to GremlinSource

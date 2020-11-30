@@ -7,14 +7,18 @@ import com.zblumenf.spring.data.gremlin.conversion.result.GremlinResultsReader;
 import com.zblumenf.spring.data.gremlin.conversion.source.reader.GremlinSourceReader;
 import com.zblumenf.spring.data.gremlin.conversion.source.writer.GremlinSourceWriter;
 import com.zblumenf.spring.data.gremlin.conversion.traversal.GremlinTraversalBuilder;
+import com.zblumenf.spring.data.gremlin.exception.GremlinAnnotationTypeException;
 import com.zblumenf.spring.data.gremlin.exception.GremlinInvalidEntityIdFieldException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.apache.tinkerpop.gremlin.process.traversal.TextP;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +48,15 @@ public abstract class AbstractGremlinSource<T> implements GremlinSource<T> {
     @Setter
     private Map<String, Object> properties;
 
+    @Getter
+    @Setter
+    private Map<String, P> propertyPs;
+
+    @Getter
+    @Setter
+    private Map<String, TextP> propertyTextPs;
+
+
     @Setter(AccessLevel.PRIVATE)
     private GremlinTraversalBuilder traversalBuilder;
 
@@ -58,11 +71,15 @@ public abstract class AbstractGremlinSource<T> implements GremlinSource<T> {
 
     protected AbstractGremlinSource() {
         this.properties = new HashMap<>();
+        this.propertyPs = new HashMap<>();
+        this.propertyTextPs = new HashMap<>();
     }
 
     protected AbstractGremlinSource(Class<T> domainClass) {
         this.domainClass = domainClass;
         this.properties = new HashMap<>();
+        this.propertyPs = new HashMap<>();
+        this.propertyTextPs = new HashMap<>();
 
         setProperty(Constants.GREMLIN_PROPERTY_CLASSNAME, domainClass.getName());
     }
@@ -153,6 +170,24 @@ public abstract class AbstractGremlinSource<T> implements GremlinSource<T> {
             this.properties.remove(key);
         } else {
             this.properties.put(key, value);
+        }
+    }
+
+    @Override
+    public void setPropertyP(String key, Class<? extends P> pClass) {
+        try {
+            this.propertyPs.put(key, (P<?>) pClass.getMethod("getP", null).invoke(null, null));
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new GremlinAnnotationTypeException("Failed To Instantiate P", e);
+        }
+    }
+
+    @Override
+    public void setPropertyTextP(String key, Class<? extends TextP> textPClass) {
+        try {
+            this.propertyPs.put(key, (TextP) textPClass.getMethod("getTextP", null).invoke(null, null));
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new GremlinAnnotationTypeException("Failed To Instantiate textP", e);
         }
     }
 }

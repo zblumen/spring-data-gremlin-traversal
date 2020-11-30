@@ -3,30 +3,30 @@ package com.zblumenf.spring.data.gremlin.conversion.traversal;
 
 import com.zblumenf.spring.data.gremlin.common.GremlinUtils;
 import com.zblumenf.spring.data.gremlin.exception.GremlinInvalidEntityIdFieldException;
-import com.zblumenf.spring.data.gremlin.exception.GremlinUnexpectedEntityTypeException;
 import lombok.NonNull;
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.T;
-import org.apache.tinkerpop.shaded.jackson.core.JsonProcessingException;
 
 import java.util.Date;
 import java.util.Map;
 
+import static com.zblumenf.spring.data.gremlin.common.Constants.DEFAULT_LABEL_PROPERTY_KEY;
+
 public abstract class AbstractGremlinTraversalBuilder {
 
-    private static Object convertToQueryValue(@NonNull Object value){
+    public static Object convertToQueryValue(@NonNull Object value){
         if(value instanceof Date) {
             return GremlinUtils.timeToMilliSeconds(value);
         }
         return value;
     }
 
-    private static void generateProperty(@NonNull GraphTraversal traversal, @NonNull String name, @NonNull Object value){
+    private static void addProperty(@NonNull GraphTraversal traversal, @NonNull String name, @NonNull Object value){
         traversal.property(name, convertToQueryValue(value));
     }
 
-
-    protected static void generatePropertyWithRequiredId(@NonNull GraphTraversal traversal, @NonNull Object id) {
+    protected static void addPropertyWithRequiredId(@NonNull GraphTraversal traversal, @NonNull Object id) {
         if (id instanceof Long || id instanceof String || id instanceof Integer) {
             traversal.property(T.id, id);
         } else{
@@ -34,9 +34,9 @@ public abstract class AbstractGremlinTraversalBuilder {
         }
     }
 
-    protected static void generateProperties(@NonNull GraphTraversal traversal, @NonNull final Map<String, Object> properties) {
+    protected static void addProperties(@NonNull GraphTraversal traversal, @NonNull final Map<String, Object> properties) {
         properties.entrySet().stream().filter(e -> e.getValue() != null)
-                .forEach(e -> generateProperty(traversal, e.getKey(), e.getValue()));
+                .forEach(e -> addProperty(traversal, e.getKey(), e.getValue()));
 
     }
 
@@ -50,5 +50,9 @@ public abstract class AbstractGremlinTraversalBuilder {
 
     public static GraphTraversal generateHas(@NonNull GraphTraversal traversal, @NonNull String name, @NonNull Object value) {
         return traversal.has(name, convertToQueryValue(value));
+    }
+
+    public static GraphTraversal generateHasPredicateValue(@NonNull GraphTraversal traversal, @NonNull String name, @NonNull P<?> value){
+        return traversal.has(name, value);
     }
 }

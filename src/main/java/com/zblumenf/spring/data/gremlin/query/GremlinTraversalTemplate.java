@@ -5,6 +5,9 @@ import com.zblumenf.spring.data.gremlin.conversion.MappingGremlinConverter;
 import com.zblumenf.spring.data.gremlin.conversion.source.GremlinSource;
 import com.zblumenf.spring.data.gremlin.conversion.source.GremlinSourceVertex;
 import com.zblumenf.spring.data.gremlin.exception.GremlinUnexpectedEntityTypeException;
+import com.zblumenf.spring.data.gremlin.query.query.GremlinQuery;
+import com.zblumenf.spring.data.gremlin.query.query.QueryFindTraversalGenerator;
+import com.zblumenf.spring.data.gremlin.query.query.QueryTraversalGenerator;
 import org.apache.tinkerpop.gremlin.driver.Client;
 import org.apache.tinkerpop.gremlin.driver.Result;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.WithOptions;
@@ -15,8 +18,11 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 public class GremlinTraversalTemplate implements GremlinOperations, ApplicationContextAware {
 
@@ -53,6 +59,10 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
         }*/
 
         return domain;
+    }
+
+    private <T> List<T> recoverDomainList(@NonNull GremlinSource<T> source, @NonNull List<Map<Object, Object>> results) {
+        return results.stream().map(r -> recoverDomain(source, Collections.singletonList(r))).collect(toList());
     }
 
     public ApplicationContext getApplicationContext() {
@@ -164,5 +174,18 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
     @Override
     public <T> boolean existsById(@NonNull Object id, @NonNull GremlinSource<T> source) {
         return findById(id, source) != null;
+    }
+
+    @Override
+    public <T> List<T> find(@NonNull GremlinQuery query, @NonNull GremlinSource<T> source) {
+        final QueryTraversalGenerator generator = new QueryFindTraversalGenerator(source);
+        final GraphTraversal traversal = generator.generate(query, this.factory.generateGraphTraversalSource());
+        final List<Map<Object, Object>> results = this.executeQueryToValueMapList(traversal);
+
+        if (results.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return this.recoverDomainList(source, results);
     }
 }
