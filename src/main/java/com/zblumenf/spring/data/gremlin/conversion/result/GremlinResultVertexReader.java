@@ -37,7 +37,7 @@ public class GremlinResultVertexReader extends AbstractGremlinResultReader imple
 
         super.readResultProperties(result, source);
 
-        final String className = source.getProperties().get(Constants.GREMLIN_PROPERTY_CLASSNAME).toString();
+        final String className = ((List<Object>)source.getProperties().get(Constants.GREMLIN_PROPERTY_CLASSNAME)).get(0).toString();
 
         source.setIdField(GremlinUtils.getIdField(GremlinUtils.toEntityClass(className)));
         source.setId(result.get(Constants.PROPERTY_ID));

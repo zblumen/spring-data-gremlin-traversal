@@ -1,5 +1,6 @@
 package com.zblumenf.spring.data.gremlin.query;
 
+import com.zblumenf.spring.data.gremlin.common.GremlinEntityType;
 import com.zblumenf.spring.data.gremlin.common.GremlinFactory;
 import com.zblumenf.spring.data.gremlin.conversion.MappingGremlinConverter;
 import com.zblumenf.spring.data.gremlin.conversion.source.GremlinSource;
@@ -9,7 +10,6 @@ import com.zblumenf.spring.data.gremlin.query.query.GremlinQuery;
 import com.zblumenf.spring.data.gremlin.query.query.QueryFindTraversalGenerator;
 import com.zblumenf.spring.data.gremlin.query.query.QueryTraversalGenerator;
 import org.apache.tinkerpop.gremlin.driver.Client;
-import org.apache.tinkerpop.gremlin.driver.Result;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.WithOptions;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.springframework.beans.BeansException;
@@ -17,10 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -37,48 +34,8 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
         this.mappingConverter = converter;
     }
 
-    @NonNull
-    private List<Map<Object, Object>> executeQueryToValueMapList(@NonNull GraphTraversal traversal) {
-        return new ArrayList<Map<Object, Object>>(traversal.valueMap().with(WithOptions.tokens).toList());
-    }
-
-    @NonNull
-    private void executeQueryToIterate(@NonNull GraphTraversal traversal) {
-        traversal.iterate();
-    }
-
-    private <T> T recoverDomain(@NonNull GremlinSource<T> source, @NonNull List<Map<Object, Object>> results) {
-        final T domain;
-        final Class<T> domainClass = source.getDomainClass();
-
-        source.doGremlinResultRead(results);
-        domain = this.mappingConverter.read(domainClass, source);
-
-        /*if (source instanceof GremlinSourceEdge) {
-            this.completeEdge(domain, (GremlinSourceEdge) source);
-        }*/
-
-        return domain;
-    }
-
-    private <T> List<T> recoverDomainList(@NonNull GremlinSource<T> source, @NonNull List<Map<Object, Object>> results) {
-        return results.stream().map(r -> recoverDomain(source, Collections.singletonList(r))).collect(toList());
-    }
-
     public ApplicationContext getApplicationContext() {
         return this.context;
-    }
-
-    @Override
-    public MappingGremlinConverter getMappingConverter() {
-        return this.mappingConverter;
-    }
-
-
-
-    @Override
-    public void setApplicationContext(@NonNull ApplicationContext context) throws BeansException {
-        this.context = context;
     }
 
     public Client getGremlinClient() {
@@ -89,17 +46,14 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
         return this.gremlinClient;
     }
 
-    private <T> T findByIdInternal(@NonNull GremlinSource<T> source) {
-        final GraphTraversal traversal = source
-                .getGremlinTraversalBuilder()
-                .buildFindByIdTraversal(source, this.factory.generateGraphTraversalSource());
-        final List<Map<Object, Object>> results = this.executeQueryToValueMapList(traversal);
+    @Override
+    public MappingGremlinConverter getMappingConverter() {
+        return this.mappingConverter;
+    }
 
-        if (results.isEmpty()) {
-            return null;
-        }
-
-        return recoverDomain(source, results);
+    @Override
+    public void setApplicationContext(@NonNull ApplicationContext context) throws BeansException {
+        this.context = context;
     }
 
     @Override
@@ -121,15 +75,6 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
                 .buildDeleteByIdTraversal(source, this.factory.generateGraphTraversalSource());
 
         executeQueryToIterate(traversal);
-    }
-
-    private <T> List<Map<Object, Object>> insertInternal(@NonNull T object, @NonNull GremlinSource<T> source) {
-        this.mappingConverter.write(object, source);
-
-        final GraphTraversal traversal = source
-                .getGremlinTraversalBuilder()
-                .buildInsertTraversal(source, this.factory.generateGraphTraversalSource());
-        return this.executeQueryToValueMapList(traversal);
     }
 
     @Override
@@ -161,6 +106,18 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
     }
 
     @Override
+    public <T> T update(@NonNull T object, @NonNull GremlinSource<T> source) {
+        final Optional<Object> optional = source.getId();
+
+       /* if (!(source instanceof GremlinSourceGraph)
+                && (!optional.isPresent() || notExistsById(optional.get(), source))) {
+            throw new GremlinQueryException("cannot update the object doesn't exist");
+        } */
+
+        return this.updateInternal(object, source);
+    }
+
+    @Override
     public <T> T findById(@NonNull Object id, @NonNull GremlinSource<T> source) {
        /* if (source instanceof GremlinSourceGraph) {
             throw new UnsupportedOperationException("Gremlin graph cannot be findById.");
@@ -169,6 +126,15 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
         source.setId(id);
 
         return findByIdInternal(source);
+    }
+
+    @Override
+    public <T> void deleteAll(@NonNull GremlinSource<T> source) {
+        final GraphTraversal traversal = source
+                .getGremlinTraversalBuilder()
+                .buildDeleteAllTraversal(this.factory.generateGraphTraversalSource());
+
+        executeQueryToIterate(traversal);
     }
 
     @Override
@@ -188,4 +154,90 @@ public class GremlinTraversalTemplate implements GremlinOperations, ApplicationC
 
         return this.recoverDomainList(source, results);
     }
+
+    @Override
+    public <T> T save(@NonNull T object, @NonNull GremlinSource<T> source) {
+        final Optional<Object> optional = source.getId();
+        //final boolean entityGraph = source instanceof GremlinSourceGraph;
+
+        /*if (entityGraph && this.isEmptyGraph(source)) {
+            return insert(object, source);
+        } else*/
+
+        if (!optional.isPresent() || notExistsById(optional.get(), source)) {
+            return insert(object, source);
+        } else {
+            return updateInternal(object, source);
+        }
+    }
+
+    private <T> T findByIdInternal(@NonNull GremlinSource<T> source) {
+        final GraphTraversal traversal = source
+                .getGremlinTraversalBuilder()
+                .buildFindByIdTraversal(source, this.factory.generateGraphTraversalSource());
+        final List<Map<Object, Object>> results = this.executeQueryToValueMapList(traversal);
+
+        if (results.isEmpty()) {
+            return null;
+        }
+
+        return recoverDomain(source, results);
+    }
+
+    private <T> List<Map<Object, Object>> insertInternal(@NonNull T object, @NonNull GremlinSource<T> source) {
+        this.mappingConverter.write(object, source);
+
+        final GraphTraversal traversal = source
+                .getGremlinTraversalBuilder()
+                .buildInsertTraversal(source, this.factory.generateGraphTraversalSource());
+        return this.executeQueryToValueMapList(traversal);
+    }
+
+    private <T> T updateInternal(@NonNull T object, @NonNull GremlinSource<T> source) {
+        this.mappingConverter.write(object, source);
+
+        final GraphTraversal traversal = source.getGremlinTraversalBuilder().buildUpdateTraversal(source, this.factory.generateGraphTraversalSource());
+
+        executeQueryToIterate(traversal);
+
+        return object;
+    }
+
+    private <T> boolean notExistsById(@NonNull Object id, @NonNull GremlinSource<T> source) {
+        return !existsById(id, source);
+    }
+
+    @NonNull
+    private List<Map<Object, Object>> executeQueryToValueMapList(@NonNull GraphTraversal traversal) {
+        return new ArrayList<Map<Object, Object>>(traversal.valueMap().with(WithOptions.tokens).toList());
+    }
+
+    @NonNull
+    private void executeQueryToIterate(@NonNull GraphTraversal traversal) {
+        traversal.iterate();
+    }
+
+    @NonNull
+    private void executeQueryToNext(@NonNull GraphTraversal traversal) {
+        traversal.next();
+    }
+
+    private <T> T recoverDomain(@NonNull GremlinSource<T> source, @NonNull List<Map<Object, Object>> results) {
+        final T domain;
+        final Class<T> domainClass = source.getDomainClass();
+
+        source.doGremlinResultRead(results);
+        domain = this.mappingConverter.read(domainClass, source);
+
+        /*if (source instanceof GremlinSourceEdge) {
+            this.completeEdge(domain, (GremlinSourceEdge) source);
+        }*/
+
+        return domain;
+    }
+
+    private <T> List<T> recoverDomainList(@NonNull GremlinSource<T> source, @NonNull List<Map<Object, Object>> results) {
+        return results.stream().map(r -> recoverDomain(source, Collections.singletonList(r))).collect(toList());
+    }
+
 }

@@ -21,9 +21,9 @@ public class TestGremlinProperties {
 
     private String password;
 
-    private boolean sslEnabled = true;
+    private boolean sslEnabled = false;
 
-    private boolean telemetryAllowed = true;
+    private boolean telemetryAllowed = false;
 
     private String serializer = Serializers.GRAPHSON.toString();
 }

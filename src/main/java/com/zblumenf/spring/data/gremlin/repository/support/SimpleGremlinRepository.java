@@ -31,7 +31,11 @@ public class SimpleGremlinRepository<T, ID extends Serializable> implements Grem
     @Override
     @SuppressWarnings("unchecked")
     public <S extends T> S save(@NonNull S domain) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        final GremlinSource<T> source = this.information.createGremlinSource();
+
+        source.setId(this.information.getId(domain));
+
+        return (S) this.operations.save(domain, source);
     }
 
     @Override
@@ -80,7 +84,7 @@ public class SimpleGremlinRepository<T, ID extends Serializable> implements Grem
 
     @Override
     public void deleteAll() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        this.operations.deleteAll(this.information.createGremlinSource());
     }
 
 

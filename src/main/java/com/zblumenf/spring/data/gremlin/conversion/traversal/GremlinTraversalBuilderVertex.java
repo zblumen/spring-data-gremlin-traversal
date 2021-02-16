@@ -26,6 +26,11 @@ public class GremlinTraversalBuilderVertex extends AbstractGremlinTraversalBuild
     }
 
     @Override
+    public GraphTraversal buildDeleteAllTraversal(@NonNull GraphTraversalSource g) {
+        return g.V().drop();
+    }
+
+    @Override
     public GraphTraversal buildFindByIdTraversal(@NonNull GremlinSource source, @NonNull GraphTraversalSource g) {
         if (!(source instanceof GremlinSourceVertex)) {
             throw new GremlinUnexpectedSourceTypeException("should be the instance of GremlinSourceVertex");
@@ -45,5 +50,19 @@ public class GremlinTraversalBuilderVertex extends AbstractGremlinTraversalBuild
         Assert.isTrue(source.getId().isPresent(), "GremlinSource should contain id.");
 
         return generateHasId(g.V(), source.getId().get()).drop();
+    }
+
+    @Override
+    public GraphTraversal buildUpdateTraversal(@NonNull GremlinSource source, @NonNull GraphTraversalSource g) {
+        if (!(source instanceof GremlinSourceVertex)) {
+            throw new GremlinUnexpectedSourceTypeException("should be the instance of GremlinSourceVertex");
+        }
+
+        Assert.isTrue(source.getId().isPresent(), "GremlinSource should contain id.");
+
+        GraphTraversal traversal = generateHasId(g.V(), source.getId().get());
+        addProperties(traversal, source.getProperties());
+
+        return traversal;
     }
 }

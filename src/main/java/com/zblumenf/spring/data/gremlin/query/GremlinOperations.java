@@ -12,9 +12,9 @@ import java.util.List;
  */
 public interface GremlinOperations {
 
-    //void deleteAll();
+    <T> void deleteAll(GremlinSource<T> source);
 
-    //void deleteAll(GremlinEntityType type);
+     //void deleteAll(GremlinEntityType type);
 
     //<T> void deleteAll(GremlinSource<T> source);
 
@@ -32,9 +32,9 @@ public interface GremlinOperations {
 
     //<T> T findEdgeById(Object id, GremlinSource<T> source);
 
-    //<T> T update(T object, GremlinSource<T> source);
+    <T> T update(T object, GremlinSource<T> source);
 
-    //<T> T save(T object, GremlinSource<T> source);
+    <T> T save(T object, GremlinSource<T> source);
 
     //<T> List<T> findAll(GremlinSource<T> source);
 
