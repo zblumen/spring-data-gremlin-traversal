@@ -73,6 +73,6 @@ public class GremlinFactory {
     }
 
     public GraphTraversalSource generateGraphTraversalSource(String traversalSourceName){
-        return traversal().withRemote(DriverRemoteConnection.using(this.gremlinCluster, traversalSourceName));
+        return traversal().withRemote(DriverRemoteConnection.using(getGremlinClient(), traversalSourceName));
     }
 }

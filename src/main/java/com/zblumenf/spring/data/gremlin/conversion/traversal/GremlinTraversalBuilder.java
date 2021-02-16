@@ -13,7 +13,7 @@ public interface GremlinTraversalBuilder {
     /**
      * build the deleteAll query from source (Vertex, Edge or Graph).
      */
-    //GraphTraversal buildDeleteAllTraversal();
+    GraphTraversal buildDeleteAllTraversal(GraphTraversalSource g);
 
     /**
      * build the deleteAll By Domain Class query from source (Vertex, Edge or Graph).
@@ -28,7 +28,7 @@ public interface GremlinTraversalBuilder {
     /**
      * build the update query from source (Vertex, Edge or Graph).
      */
-    // GraphTraversal buildUpdateTraversal(GremlinSource source, GraphTraversalSource g);
+    GraphTraversal buildUpdateTraversal(GremlinSource source, GraphTraversalSource g);
 
     /**
      * build the findAll query from source (Vertex, Edge or Graph).
