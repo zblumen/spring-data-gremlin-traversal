@@ -35,4 +35,10 @@ public class TestConstants {
     public static final String VERTEX_PROJECT_0_URI = "https://github.com/Microsoft/spring-data-documentdb";
 
     public static final String VERTEX_SERVICE_LABEL = "label-service";
+
+    public static final String VERTEX_LABEL = "label-vertex";
+    public static final String VERTEX_ADVANCED_USER_LABEL = "label-advanced-user";
+    public static final String VERTEX_BOOK_LABEL = "label-book";
+    public static final String VERTEX_GROUP_OWNER_LABEL = "label-group-owner";
+    public static final String VERTEX_LIBRARY_LABEL = "label-library";
 }
