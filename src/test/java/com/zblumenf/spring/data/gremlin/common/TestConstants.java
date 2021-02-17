@@ -13,6 +13,10 @@ public class TestConstants {
     public static final String FAKE_PASSWORD = "XXX-xxx.password";
     public static final String EMPTY_STRING = "";
 
+    public static final String PROPERTY_ID = "id";
+    public static final String PROPERTY_NAME = "name";
+    public static final String PROPERTY_LOCATION = "location";
+
     public static final String VERTEX_PERSON_LABEL = "label-person";
 
     public static final String VERTEX_PERSON_ID = "233333";
